@@ -2,27 +2,23 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const { messages } = req.body;
+  const { messages, system } = req.body;
   if (!messages) return res.status(400).json({ error: "Missing messages" });
 
   const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+      "Authorization": `Bearer ${process.env.API}`
     },
     body: JSON.stringify({
       model: "llama-3.3-70b-versatile",
       max_tokens: 1024,
       messages: [
-        {
-          role: "system",
-          content: `You are an expert Roblox Studio coding assistant. You specialize in Luau scripting, Roblox APIs, client-server architecture with RemoteEvents, game mechanics, and best practices. Keep responses concise. Format all code in \`\`\`lua blocks with comments.`
-        },
+        { role: "system", content: system || "You are a helpful coding assistant." },
         ...messages
       ]
     })
