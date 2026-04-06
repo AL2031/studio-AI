@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     },
     body: JSON.stringify({
       model: "llama-3.3-70b-versatile",
-      max_tokens: 8192,
+      max_tokens: 2048,
       messages: [
         { role: "system", content: system || "You are a helpful coding assistant." },
         ...messages
