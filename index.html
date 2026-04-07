@@ -66,6 +66,9 @@
       <button class="mode-btn active" style="--accent:#22c55e" onclick="setMode(this,'general')">
         <span class="dot" style="background:#22c55e"></span> General
       </button>
+      <button class="mode-btn" style="--accent:#3b82f6" onclick="setMode(this,'coding')">
+        <span class="dot" style="background:#3b82f6"></span> Coding
+      </button>
       <button class="mode-btn" style="--accent:#e84444" onclick="setMode(this,'roblox')">
         <span class="dot" style="background:#e84444"></span> Roblox Studio
       </button>
@@ -90,8 +93,8 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
     </div>
     <div>
-      <h1 id="header-title">Coding AI</h1>
-      <p id="header-sub">General coding assistant · Powered by Groq</p>
+      <h1 id="header-title">General AI</h1>
+      <p id="header-sub">General knowledge assistant · Powered by Groq</p>
     </div>
   </header>
 
@@ -100,7 +103,7 @@
   <div id="limit-banner"></div>
 
   <div id="input-row">
-    <textarea id="user-input" placeholder="Ask any coding question..." onkeydown="handleKey(event)"></textarea>
+    <textarea id="user-input" placeholder="Ask me anything..." onkeydown="handleKey(event)"></textarea>
     <button id="send-btn" style="background:#22c55e" onclick="sendMessage()">Send</button>
   </div>
 </div>
@@ -116,11 +119,7 @@ function getHourKey() {
 function getUsed() { return parseInt(localStorage.getItem(getHourKey()) || "0"); }
 function addUsed() { localStorage.setItem(getHourKey(), getUsed() + 1); }
 function getLeft() { return Math.max(0, QUOTA_LIMIT - getUsed()); }
-
-function getResetMinutes() {
-  const n = new Date();
-  return 60 - n.getMinutes();
-}
+function getResetMinutes() { return 60 - new Date().getMinutes(); }
 
 function updateQuotaUI() {
   const left = getLeft();
@@ -146,8 +145,32 @@ function updateQuotaUI() {
 
 const MODES = {
   general: {
-    title: "Coding AI", sub: "General coding assistant · Powered by Groq",
+    title: "General AI", sub: "General knowledge assistant · Powered by Groq",
     color: "#22c55e", avatar: "AI",
+    placeholder: "Ask me anything...",
+    greeting: "Hey! I'm your general assistant. Ask me anything — science, history, math, advice, random facts, writing help, you name it!",
+    chips: ["Explain how black holes work", "What happened in WW2?", "Give me a fun fact", "Help me write an email"],
+    system: `You are a knowledgeable, friendly, and well-rounded general assistant. You can help with virtually any topic including:
+- Science, history, geography, mathematics, philosophy, literature, art, music
+- General advice, life tips, and decision making
+- Explaining complex concepts in simple, relatable terms
+- Fun facts, trivia, and curiosity-driven questions
+- World knowledge, current events, and general culture
+- Writing help: emails, essays, summaries, creative writing, proofreading
+- Language questions, definitions, word origins, grammar
+
+When answering:
+- Be conversational, clear, and engaging — like a smart friend, not a textbook
+- Use simple language unless the user wants technical depth
+- Use analogies and real-world examples to explain complex things
+- For opinion or advice questions, present balanced perspectives
+- Keep responses concise but thorough — no unnecessary filler
+- Use bullet points or lists when it genuinely helps clarity
+- Be honest when you're uncertain about something`
+  },
+  coding: {
+    title: "Coding AI", sub: "General coding assistant · Powered by Groq",
+    color: "#3b82f6", avatar: "CO",
     placeholder: "Ask any coding question...",
     greeting: "Hey! I'm your coding assistant. I can help with any language — Python, JavaScript, HTML, CSS, C#, Lua, and more. What are you working on?",
     chips: ["Explain how APIs work", "What is a for loop?", "Python vs JavaScript", "Help me fix a bug"],
@@ -200,7 +223,6 @@ You have deep knowledge of:
 - Modern CSS: Flexbox, Grid, custom properties, animations, transitions, media queries, clamp(), container queries
 - Vanilla JavaScript: DOM manipulation, events, fetch API, async/await, localStorage, Web APIs
 - Responsive and mobile-first design
-- CSS frameworks concepts (you can explain Tailwind, Bootstrap concepts in plain CSS too)
 - Performance, SEO basics, and web accessibility (WCAG)
 - Common UI patterns: modals, dropdowns, carousels, tabs, forms, dark mode
 
@@ -210,7 +232,7 @@ When answering:
 - Label code blocks correctly: \`\`\`html, \`\`\`css, \`\`\`js
 - Provide complete, copy-pasteable examples
 - Explain browser compatibility concerns when relevant
-- Suggest accessible alternatives (aria labels, keyboard nav) when building UI`
+- Suggest accessible alternatives when building UI`
   },
   game: {
     title: "Browser Game AI", sub: "HTML5 Canvas & JS game assistant · Powered by Groq",
@@ -223,14 +245,14 @@ When answering:
 You have deep knowledge of:
 - Game loop architecture (requestAnimationFrame, delta time, fixed timestep)
 - 2D physics: velocity, acceleration, gravity, friction, bouncing
-- Collision detection: AABB, circle, pixel-perfect, broad phase vs narrow phase
+- Collision detection: AABB, circle, pixel-perfect, broad vs narrow phase
 - Sprite animation: spritesheets, frame timing, state machines
 - Input handling: keyboard, mouse, touch, gamepad
 - Camera systems: following, clamping, screen shake
 - Enemy AI: pathfinding, steering behaviors, state machines
 - Particle systems, audio with Web Audio API
 - Game state management: menus, pause, game over, levels
-- Performance optimization: object pooling, spatial hashing, canvas layers
+- Performance: object pooling, spatial hashing, canvas layers
 
 When answering:
 - Write clean, well-structured, self-contained code
@@ -248,21 +270,19 @@ When answering:
     system: `You are a friendly, patient, and encouraging homework assistant designed specifically for 7th grade students (around 12-13 years old).
 
 You help with:
-- Math: fractions, decimals, percentages, ratios, basic algebra (solving for x), geometry (area, perimeter, volume, angles), statistics (mean, median, mode)
-- Science: biology (cells, ecosystems, body systems), earth science (weather, geology, space), physical science (forces, energy, atoms, elements)
+- Math: fractions, decimals, percentages, ratios, basic algebra, geometry, statistics
+- Science: biology, earth science, physical science, chemistry basics
 - English/Language Arts: essay writing, paragraph structure, thesis statements, grammar, punctuation, vocabulary, reading comprehension, literary devices
 - Social Studies / History: world history, US history, geography, civics, economics basics
-- Other subjects as needed
 
 How you respond:
-- Use simple, clear language a 7th grader will understand — avoid jargon unless you explain it
+- Use simple, clear language a 7th grader will understand
 - Break down problems step by step, showing all work for math
-- For writing tasks, help them improve and structure their own ideas — don't write essays for them
-- Use relatable analogies and real-world examples to explain concepts
+- For writing tasks, help them improve their own ideas — don't write essays for them
+- Use relatable analogies and real-world examples
 - Be encouraging and positive — build their confidence
 - If they get something wrong, gently correct and explain why
-- Ask a follow-up question if their question is unclear
-- Never just give answers without explanation — help them actually understand and learn`
+- Never just give answers without explanation — help them actually learn`
   }
 };
 
